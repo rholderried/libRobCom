@@ -1,0 +1,37 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "Build RobComTest",
+            "command": "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\g++.exe",
+            "args": [
+                "-g",
+                //"${file}",
+				"${workspaceFolder}\\main.cpp",
+				"${workspaceFolder}\\Sources\\*.cpp",
+                "-o",
+                "${workspaceFolder}\\RobComTest.exe",
+				"-I",
+				"${workspaceFolder}\\Includes",
+				"-I",
+				"${workspaceFolder}\\Libraries\\libusb\\include\\libusb-1.0",
+				"-L",
+				"${workspaceFolder}\\Libraries\\libusb\\MinGW64\\static",
+				"-l",
+				"usb-1.0"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "compiler: \"C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\g++.exe\""
+        }
+    ]
+}
