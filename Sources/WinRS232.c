@@ -2,7 +2,7 @@
 * \file WinRS232.c
 * \author Roman Holderried
 *
-* \brief Low level serial communication functionality.
+* \brief Low level serial communication functionality for windows platforms.
 *
 * <b> History </b>
 *      - 2021-09-19 - File creation. 
@@ -17,18 +17,33 @@
 * Function definitions
 ***********************************************************************************/
 
-tRS232ERROR RS232Open(tWINRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTESIZE byteSize, tPARITY parity, tSTOPBITS stopbits)
+/***************************************************************************//**
+* \brief Open a serial port.
+*
+* The most important RS232 communication parameters are to be passed to this 
+* function. Flow control is not used yet.
+*
+* @param  pInst       Instance of a tRS232 data struct
+* @param  portNo      COM port number to be opened
+* @param  baudrate    Self explaining
+* @param  byteSize    Number of bits of a data byte
+* @param  parity      Parity check not activated yet, therefore only a value of 0 makes sense
+* @param  stopbits    Number of stop bits, either 1, 1.5 or 2
+* @returns Error enumerator
+*
+*******************************************************************************/
+tRS232ERROR RS232Open(tRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTESIZE byteSize, tPARITY parity, tSTOPBITS stopbits)
 {
   const char  *comports[RS232_MAXPORTNR] = COM_NAME_ARRAY;
   uint8_t     portIdx = portNo - 1;
   HANDLE      hComm = NULL;
 
-  if((portNo + 1 >= RS232_MAXPORTNR))
+  if((portNo > RS232_MAXPORTNR))
   {
     return(WINRS232_CONF_PORT_ILLEGAL);
   }
 
-  hComm = CreateFileA(comports[portNo],
+  hComm = CreateFileA(comports[portIdx],
                       GENERIC_READ|GENERIC_WRITE,
                       0,                          /* no share  */
                       NULL,                       /* no security */
@@ -77,7 +92,7 @@ tRS232ERROR RS232Open(tWINRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTE
 }
 
 
-tRS232ERROR RS232ReadByteFromPort(tWINRS232 *pInst, uint8_t *buf, uint32_t size)
+tRS232ERROR RS232ReadByteFromPort(tRS232 *pInst, uint8_t *buf, uint32_t size)
 {
   uint32_t bytesRead;
 
@@ -93,7 +108,7 @@ tRS232ERROR RS232ReadByteFromPort(tWINRS232 *pInst, uint8_t *buf, uint32_t size)
 }
 
 
-tRS232ERROR RS232SendByte(tWINRS232 *pInst, uint8_t byte)
+tRS232ERROR RS232SendByte(tRS232 *pInst, uint8_t byte)
 {
   uint32_t bytesSent;
 
@@ -109,7 +124,7 @@ tRS232ERROR RS232SendByte(tWINRS232 *pInst, uint8_t byte)
 }
 
 
-tRS232ERROR RS232SendBuffer(tWINRS232 *pInst, uint8_t *buffer, uint32_t size)
+tRS232ERROR RS232SendBuffer(tRS232 *pInst, uint8_t *buffer, uint32_t size)
 {
   uint32_t bytesSent;
 
@@ -122,9 +137,11 @@ tRS232ERROR RS232SendBuffer(tWINRS232 *pInst, uint8_t *buffer, uint32_t size)
 }
 
 
-void RS232ClosePort(tWINRS232 *pInst)
+void RS232ClosePort(tRS232 *pInst)
 {
   CloseHandle(pInst->portHandle);
+  // Reset the data structure
+  memset(pInst, 0, sizeof(tRS232));
 }
 
 
@@ -199,19 +216,19 @@ void RS232ClosePort(tWINRS232 *pInst)
 https://msdn.microsoft.com/en-us/library/windows/desktop/aa363428%28v=vs.85%29.aspx
 */
 
-void RS232FlushRX(tWINRS232* pInst)
+void RS232FlushRX(tRS232* pInst)
 {
   PurgeComm(pInst->portHandle, PURGE_RXCLEAR | PURGE_RXABORT);
 }
 
 
-void RS232FlushTX(tWINRS232* pInst)
+void RS232FlushTX(tRS232* pInst)
 {
   PurgeComm(pInst->portHandle, PURGE_TXCLEAR | PURGE_TXABORT);
 }
 
 
-void RS232FlushRXTX(tWINRS232* pInst)
+void RS232FlushRXTX(tRS232* pInst)
 {
   PurgeComm(pInst->portHandle, PURGE_RXCLEAR | PURGE_RXABORT);
   PurgeComm(pInst->portHandle, PURGE_TXCLEAR | PURGE_TXABORT);

@@ -45,7 +45,7 @@ typedef struct
     bool        connectionState;
     uint8_t     portNo;
     HANDLE      portHandle;
-}tWINRS232;
+}tRS232;
 
 typedef enum
 {
@@ -83,11 +83,11 @@ typedef enum
     BYTE_SIZE_8 = 8
 }tBYTESIZE;
 
-tRS232ERROR RS232Open(tWINRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTESIZE byteSize, tPARITY parity, tSTOPBITS stopbits);
-tRS232ERROR RS232ReadByteFromPort(tWINRS232 *pInst, uint8_t *buf, uint32_t size);
-tRS232ERROR RS232SendByte(tWINRS232 *pInst, uint8_t byte);
-tRS232ERROR RS232SendBuffer(tWINRS232 *pInst, uint8_t *buffer, uint32_t size);
-void RS232ClosePort(tWINRS232 *pInst);
+tRS232ERROR RS232Open(tRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTESIZE byteSize, tPARITY parity, tSTOPBITS stopbits);
+tRS232ERROR RS232ReadByteFromPort(tRS232 *pInst, uint8_t *buf, uint32_t size);
+tRS232ERROR RS232SendByte(tRS232 *pInst, uint8_t byte);
+tRS232ERROR RS232SendBuffer(tRS232 *pInst, uint8_t *buffer, uint32_t size);
+void RS232ClosePort(tRS232 *pInst);
 // void RS232_cputs(int, const char *);
 // int RS232_IsDCDEnabled(int);
 // int RS232_IsRINGEnabled(int);
@@ -97,9 +97,9 @@ void RS232ClosePort(tWINRS232 *pInst);
 // void RS232_disableDTR(int);
 // void RS232_enableRTS(int);
 // void RS232_disableRTS(int);
-void RS232FlushRX(tWINRS232* pInst);
-void RS232FlushTX(tWINRS232* pInst);
-void RS232FlushRXTX(tWINRS232* pInst);
+void RS232FlushRX(tRS232* pInst);
+void RS232FlushTX(tRS232* pInst);
+void RS232FlushRXTX(tRS232* pInst);
 // int RS232_GetPortnr(const char *);
 
 #ifdef __cplusplus

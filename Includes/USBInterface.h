@@ -30,7 +30,7 @@
  * Typedefs
  ******************************************************************************/
 
-// Setupvariable f�r einen Control-Transfer
+// Setup variable for the control interface
 typedef struct __attribute__((packed))
 {
 	uint8_t bmRequestType;
