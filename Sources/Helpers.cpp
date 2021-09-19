@@ -19,7 +19,7 @@ ThreadWrapper::ThreadWrapper(std::function<void()> func) : m_threadHandler(func)
 // Move Constructor
 ThreadWrapper::ThreadWrapper(ThreadWrapper && obj) : m_threadHandler(std::move(obj.m_threadHandler))
 {
-	std::cout << "Thread move Constructor is called" << std::endl;
+	cout << "Thread move Constructor is called" << endl;
 }
 
 //Move Assignment Operator

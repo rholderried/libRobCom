@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "iostream": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "RS232.h": "c",
+        "configuration.h": "c",
+        "windows.h": "c",
+        "string.h": "c"
     }
 }
