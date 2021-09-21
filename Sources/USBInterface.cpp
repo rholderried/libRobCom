@@ -234,7 +234,7 @@ void USBInterface::RegisterBulkTransfer (uint8_t * bufferPtr, uint8_t endpointAd
 	libusb_fill_bulk_transfer(m_transfer_array[transferIdx].transfer, m_devh, endpointAddress, bufferPtr,
 							  bufferSize, TransferCallback, static_cast<void*>(&m_transfer_array[transferIdx]), timeout);
 
-	// Index hinzuf�gen
+	// Add Index
 	m_transfer_array_indizes |= (1 << transferIdx);
 }
 
