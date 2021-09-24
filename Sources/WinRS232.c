@@ -2,7 +2,8 @@
 * \file WinRS232.c
 * \author Roman Holderried
 *
-* \brief Low level serial communication functionality for windows platforms.
+* \brief Low level serial communication functionality for windows platforms 
+* (Win32 API).
 *
 * <b> History </b>
 *      - 2021-09-19 - File creation. 

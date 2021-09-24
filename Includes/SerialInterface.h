@@ -19,14 +19,11 @@
 #include <thread>
 #include <cstdint>
 #include <cstdbool>
+#include <functional>
 #include "Helpers.h"
 #include "Configuration.h"
 
 
-#ifdef OS_WIN32
-#include "WinRS232.h"
-#elif defined(OS_LINUX)
-#endif
 /************************************************************************************
  * Defines
  ***********************************************************************************/
@@ -36,6 +33,9 @@
  * RobComSerial message buffer*/
 #define MSG_BUFFER_SIZE     10
 #define MAX_NUM_PORTS       10
+
+#define COM_TYPE_DEBUG      (uint8_t)1
+#define COM_TYPE_DATA       (uint8_t)(1 << 1)
 /************************************************************************************
  * Type definitions
  ***********************************************************************************/
@@ -46,20 +46,23 @@ typedef enum
     SERIAL_INTERFACE_SENDING
 }tSERIALIFSTATE;
 
+typedef std::function<bool(uint8_t*, uint32_t)> ReceiveCallback;
+
 class SerialInterface
 {
 public:
     
-    tSERIALIFSTATE m_actualIfState;
-    tSERIALIFSTATE m_lastIfState;
+    tSERIALIFSTATE m_ifState;
+    ReceiveCallback m_receive_cb;
 
-    SerialInterface();
-    SerialInterface(uint8_t portNo, uint32_t baudrate);
-    bool openPort(uint8_t portNo, uint32_t baudrate);
-    void handleSerialTransfers(void);
+    SerialInterface(ReceiveCallback receive_cb);
+    SerialInterface(ReceiveCallback receive_cb, uint8_t portNo, uint32_t baudrate);
+    void openPort(uint8_t portNo, uint32_t baudrate);
+    // void changeReceiveTimeout(uint32_t timeout_ms);
+    void receiveTask(uint8_t* buffer, uint32_t size, uint32_t timeout_ms);
 
 private:
-    tRS232 m_rs232;
+    tRS232 m_Rs232;
 };
 
 
