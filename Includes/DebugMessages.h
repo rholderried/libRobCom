@@ -1,16 +1,14 @@
 /********************************************************************************//**
- * \file SerialInterface.h
+ * \file DebugMessages.h
  * \author Roman Holderried
  *
  * \brief RobCom serial interface.
  *
  * <b> History </b>
- *      - 2021-07-18 - File creation. 
+ *      - 2021-09-26 - File creation. 
  *                     
  ***********************************************************************************/
 
-#ifndef SERIALINTERFACE_H_
-#define SERIALINTERFACE_H_
 
 /************************************************************************************
  * Includes
@@ -18,56 +16,47 @@
 #include <iostream>
 #include <cstdint>
 #include <cstdbool>
-#include <functional>
-#include "Configuration.h"
-
-#ifdef OS_WIN32
-#include "WinRS232.h"
-#elif defined(OS_LINUX)
-#endif
-
+#include "Helpers.h"
+#include "SerialInterface.h"
 
 /************************************************************************************
  * Defines
  ***********************************************************************************/
 
-// #define BYTE_TO_BYTE_TIMEOUT_MS     10
+/** Define which message length can be get from each serial interface*/
+#define MSG_BUFFER_WIDTH            1024
+/** Defines how many messages can be hold by the debug message buffer and the 
+ * RobComSerial message buffer*/
+#define MSG_BUFFER_SIZE             10
 
-#define COM_TYPE_DEBUG      (uint8_t)1
-#define COM_TYPE_DATA       (uint8_t)(1 << 1)
 /************************************************************************************
  * Type definitions
  ***********************************************************************************/
-typedef enum
-{
-    SERIAL_INTERFACE_IDLE,
-    SERIAL_INTERFACE_RECEIVING,
-    SERIAL_INTERFACE_SENDING
-}tSERIALIFSTATE;
 
-typedef std::function<void(uint8_t*, uint32_t)> ReceiveCallback;
 
 /************************************************************************************
  * Class definitions
  ***********************************************************************************/
-class SerialInterface
+class DebugMessages
 {
-public:
-    
-    tSERIALIFSTATE m_ifState;
-    ReceiveCallback m_receive_cb;
+    public:
+        DebugMessages();
+        ~DebugMessages();
+        
+        void msgStateMachine (void);
 
-    SerialInterface(ReceiveCallback receive_cb);
-    SerialInterface(ReceiveCallback receive_cb, uint8_t portNo, uint32_t baudrate);
-    void openPort(uint8_t portNo, uint32_t baudrate);
-    // void changeReceiveTimeout(uint32_t timeout_ms);
-    void receiveTask(uint8_t* buffer, uint32_t size, uint32_t intervalTimeout_ms);
-    void sendBuffer(uint8_t* buffer, uint32_t size);
 
-private:
-    tRS232 m_Rs232;
+
+    private:
+        ThreadWrapper       *m_eventHandlerPtr      = nullptr;
+        // Ringbuffer holding the debug messages
+	    Ringbuffer<uint8_t> *m_liveDatalogBuffer    = nullptr;
+        SerialInterface     *m_commInterface        = nullptr;
+        uint8_t             m_msgBuf[MSG_BUFFER_SIZE] = {0};
+        uint32_t            m_actualBufferIdx         = 0;
+
+        void msgReceiver (uint8_t *buffer, uint32_t size);
+        
+        
+
 };
-
-
-
-#endif \\ SERIALINTERFACE_H_

@@ -58,14 +58,15 @@ typedef enum
 
 typedef enum
 {
-    WINRS232_SUCCESS,
-    WINRS232_CONF_PORT_ILLEGAL = 1,
-    WINRS232_CONF_INVALID_BYTE_SIZE = 2,
-    WINRS232_CONF_SETTINGS_NOT_APPLICABLE = 3,
+    WINRS232_FAILURE                        = -1,
+    WINRS232_SUCCESS                        = 0,
+    WINRS232_CONF_PORT_ILLEGAL              = 1,
+    WINRS232_CONF_INVALID_BYTE_SIZE         = 2,
+    WINRS232_CONF_SETTINGS_NOT_APPLICABLE   = 3,
 
-    WINRS232_UNABLE_TO_OPEN_PORT = 10,
-    WINRS232_PORT_READOUT_FAILED = 11,
-    WINRS232_SEND_OPERATION_FAILED = 12
+    WINRS232_UNABLE_TO_OPEN_PORT            = 10
+    // WINRS232_PORT_READOUT_FAILED = 11,
+    // WINRS232_SEND_OPERATION_FAILED = 12
 }tRS232ERROR;
 
 typedef enum
@@ -84,10 +85,11 @@ typedef enum
 }tBYTESIZE;
 
 tRS232ERROR RS232Open(tRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTESIZE byteSize, tPARITY parity, tSTOPBITS stopbits);
-tRS232ERROR RS232ReadByteFromPort(tRS232 *pInst, uint8_t *buf, uint32_t size);
-tRS232ERROR RS232SendByte(tRS232 *pInst, uint8_t byte);
-tRS232ERROR RS232SendBuffer(tRS232 *pInst, uint8_t *buffer, uint32_t size);
+int32_t RS232ReadBufferFromPort(tRS232 *pInst, uint8_t *buf, uint32_t size);
+// tRS232ERROR RS232SendByte(tRS232 *pInst, uint8_t byte);
+int32_t RS232SendBuffer(tRS232 *pInst, uint8_t *buffer, uint32_t size);
 void RS232ClosePort(tRS232 *pInst);
+void RS232ConfigureReadTimeout(tRS232 *pInst, uint32_t byteToByteTimeout_ms);
 // void RS232_cputs(int, const char *);
 // int RS232_IsDCDEnabled(int);
 // int RS232_IsRINGEnabled(int);

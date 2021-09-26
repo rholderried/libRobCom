@@ -78,11 +78,36 @@ void SerialInterface::openPort(uint8_t portNo, uint32_t baudrate)
 * Usually runs in its own thread in order to not block the main application. Calls 
 * the receive callback when data has arrived.
 *
-* @param    buffer      Pointer to the buffer the data gets stored in. 
-* @param    size        Data size that shall be called.
-* @param    timeout_ms  Timespan (in ms) that the receiver waits for data until it returns.
+* @param    buffer              Pointer to the buffer the data gets stored in. 
+* @param    size                Data size that is to be received.
+* @param    intervalTimeout_ms  Maximum Byte-to-byte timespan of the data stream
+*                               before the Readfile function returns.
 ************************************************************************************/
-void SerialInterface::receiveTask(uint8_t* buffer, uint32_t size, uint32_t timeout_ms)
+void SerialInterface::receiveTask(uint8_t* buffer, uint32_t size, uint32_t intervalTimeout_ms)
 {
-    
+    this->m_ifState = SERIAL_INTERFACE_RECEIVING;
+    // Set timeout
+    RS232ConfigureReadTimeout(&this->m_Rs232, intervalTimeout_ms);
+
+    RS232ReadBufferFromPort(&this->m_Rs232, buffer, size);
+
+    // Call the data processing receive routine
+    this->m_receive_cb(buffer, size);
+
+    this->m_ifState = SERIAL_INTERFACE_IDLE;
+}
+
+/*******************************************************************************//***
+* \brief Function that sends data via the serial port
+*
+* @param    buffer              Pointer to the buffer the data is stored in. 
+* @param    size                Data byte size that gets sent.
+************************************************************************************/
+void SerialInterface::sendBuffer(uint8_t* buffer, uint32_t size)
+{
+    this->m_ifState = SERIAL_INTERFACE_SENDING;
+
+    RS232SendBuffer(&this->m_Rs232, buffer, size);
+
+    this->m_ifState = SERIAL_INTERFACE_IDLE;
 }

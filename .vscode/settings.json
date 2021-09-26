@@ -6,6 +6,7 @@
         "configuration.h": "c",
         "windows.h": "c",
         "string.h": "c",
-        "thread": "cpp"
+        "thread": "cpp",
+        "functional": "cpp"
     }
 }

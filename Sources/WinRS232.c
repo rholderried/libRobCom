@@ -93,7 +93,7 @@ tRS232ERROR RS232Open(tRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTESIZ
 }
 
 
-tRS232ERROR RS232ReadByteFromPort(tRS232 *pInst, uint8_t *buf, uint32_t size)
+int32_t RS232ReadBufferFromPort(tRS232 *pInst, uint8_t *buf, uint32_t size)
 {
   uint32_t bytesRead;
 
@@ -102,39 +102,53 @@ tRS232ERROR RS232ReadByteFromPort(tRS232 *pInst, uint8_t *buf, uint32_t size)
 
   if(!ReadFile(pInst->portHandle, buf, size, (LPDWORD)((void *)&bytesRead), NULL))
   {
-    return WINRS232_PORT_READOUT_FAILED;
+    return (int32_t)WINRS232_FAILURE;
   }
 
-  return WINRS232_SUCCESS;
+  return (int32_t)bytesRead;
 }
 
 
-tRS232ERROR RS232SendByte(tRS232 *pInst, uint8_t byte)
-{
-  uint32_t bytesSent;
+// tRS232ERROR RS232SendByte(tRS232 *pInst, uint8_t byte)
+// {
+//   uint32_t bytesSent;
 
-  if(!WriteFile(pInst->portHandle, &byte, 1, (LPDWORD)((void *)&bytesSent), NULL))
-  {
-    return(WINRS232_SEND_OPERATION_FAILED);
-  }
+//   if(!WriteFile(pInst->portHandle, &byte, 1, (LPDWORD)((void *)&bytesSent), NULL))
+//   {
+//     return(WINRS232_SEND_OPERATION_FAILED);
+//   }
 
-  if(bytesSent<0)  
-    return(WINRS232_SEND_OPERATION_FAILED);
+//   if(bytesSent<0)  
+//     return(WINRS232_SEND_OPERATION_FAILED);
 
-  return WINRS232_SUCCESS;
-}
+//   return WINRS232_SUCCESS;
+// }
 
 
-tRS232ERROR RS232SendBuffer(tRS232 *pInst, uint8_t *buffer, uint32_t size)
+int32_t RS232SendBuffer(tRS232 *pInst, uint8_t *buffer, uint32_t size)
 {
   uint32_t bytesSent;
 
   if(!WriteFile(pInst->portHandle, buffer, size, (LPDWORD)((void *)&bytesSent), NULL))
   {
-    return(WINRS232_SEND_OPERATION_FAILED);
+    return (int32_t)WINRS232_FAILURE;
   }
 
-  return WINRS232_SUCCESS;
+  return (int32_t)bytesSent;
+}
+
+
+void RS232ConfigureReadTimeout(tRS232 *pInst, uint32_t byteToByteTimeout_ms)
+{
+  COMMTIMEOUTS cto;
+
+  GetCommTimeouts(pInst->portHandle,&cto);
+
+  cto.ReadIntervalTimeout = byteToByteTimeout_ms;
+  cto.ReadTotalTimeoutConstant = 0;
+  cto.ReadTotalTimeoutMultiplier = 0;
+
+  SetCommTimeouts(pInst->portHandle, &cto);
 }
 
 
