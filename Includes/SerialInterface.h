@@ -56,12 +56,13 @@ public:
     
     tSERIALIFSTATE m_ifState;
     ReceiveCallback m_receive_cb;
+    uint32_t m_receiveSize;
 
-    SerialInterface(ReceiveCallback receive_cb);
-    SerialInterface(ReceiveCallback receive_cb, uint8_t portNo, uint32_t baudrate);
+    SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSize);
+    SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSize, uint8_t portNo, uint32_t baudrate);
     void openPort(uint8_t portNo, uint32_t baudrate);
     // void changeReceiveTimeout(uint32_t timeout_ms);
-    void receiveTask(uint8_t* buffer, uint32_t size, uint32_t intervalTimeout_ms);
+    void receiveTask(uint32_t size, uint32_t intervalTimeout_ms);
     void sendBuffer(uint8_t* buffer, uint32_t size);
 
 private:

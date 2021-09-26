@@ -24,10 +24,13 @@
  ***********************************************************************************/
 
 /** Define which message length can be get from each serial interface*/
-#define MSG_BUFFER_WIDTH            1024
+#define MSG_BUFFER_WIDTH                    1024
+/** Define the width of the receive buffer (Stack buffer!)*/
+#define RECEIVE_BUFFER_WIDTH                128
 /** Defines how many messages can be hold by the debug message buffer and the 
  * RobComSerial message buffer*/
-#define MSG_BUFFER_SIZE             10
+#define MSG_BUFFER_SIZE                     10
+#define DEBUG_MSG_BYTE_TO_BYTE_TIMEOUT_MS   10
 
 /************************************************************************************
  * Type definitions
@@ -50,9 +53,9 @@ class DebugMessages
     private:
         ThreadWrapper       *m_eventHandlerPtr      = nullptr;
         // Ringbuffer holding the debug messages
-	    Ringbuffer<uint8_t> *m_liveDatalogBuffer    = nullptr;
+	    Ringbuffer<uint8_t> *m_msgRingBuffer   = nullptr;
         SerialInterface     *m_commInterface        = nullptr;
-        uint8_t             m_msgBuf[MSG_BUFFER_SIZE] = {0};
+        uint8_t             *m_msgBuf;
         uint32_t            m_actualBufferIdx         = 0;
 
         void msgReceiver (uint8_t *buffer, uint32_t size);
