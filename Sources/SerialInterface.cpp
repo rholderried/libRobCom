@@ -36,9 +36,10 @@
 ************************************************************************************/
 SerialInterface::SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSize)
 {
-    m_ifState = SERIAL_INTERFACE_IDLE;
-    m_receive_cb = receive_cb;
-    m_receiveSize = receiveSize;
+    m_ifState               = SERIAL_INTERFACE_IDLE;
+    m_receive_cb            = receive_cb;
+    m_receiveSize           = receiveSize;
+    m_receiveTaskRunning    = false;
 }
 
 /*******************************************************************************//***
@@ -67,11 +68,15 @@ SerialInterface::SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSiz
 *
 * @param    portNo      Port number of the COM port to be opened.
 * @param    baudrate    Baudrate that gets configured for the port.
+* @returns  Success indicator
 ************************************************************************************/
-void SerialInterface::openPort(uint8_t portNo, uint32_t baudrate)
+bool SerialInterface::openPort(uint8_t portNo, uint32_t baudrate)
 {
+    bool retVal;
     // Lower level RS232 opening function
-    RS232Open(&this->m_Rs232, portNo, baudrate, BYTE_SIZE_8, NO_PARITY, STOPBITS_1_0);
+    retVal = (RS232Open(&this->m_Rs232, portNo, baudrate, BYTE_SIZE_8, NO_PARITY, STOPBITS_1_0) == 0);
+
+    return retVal;
 }
 
 /*******************************************************************************//***
@@ -85,17 +90,22 @@ void SerialInterface::openPort(uint8_t portNo, uint32_t baudrate)
 * @param    intervalTimeout_ms  Maximum Byte-to-byte timespan of the data stream
 *                               before the Readfile function returns.
 ************************************************************************************/
-void SerialInterface::receiveTask(uint32_t size, uint32_t intervalTimeout_ms)
+void SerialInterface::receiveTask(void)
 {
     uint8_t receiveBuffer[m_receiveSize] = {0};
+    int32_t actualReceived = 0;
+
     m_ifState = SERIAL_INTERFACE_RECEIVING;
     // Set timeout
-    RS232ConfigureReadTimeout(&m_Rs232, intervalTimeout_ms);
+    // RS232ConfigureReadTimeout(&m_Rs232, intervalTimeout_ms);
 
-    RS232ReadBufferFromPort(&m_Rs232, receiveBuffer, size);
+    while (m_receiveTaskRunning)
+    {
+        actualReceived = RS232ReadBufferFromPort(&m_Rs232, receiveBuffer, m_receiveSize);
 
-    // Call the data processing receive routine
-    m_receive_cb(receiveBuffer, size);
+        // Call the data processing receive routine
+        m_receive_cb(receiveBuffer, actualReceived);
+    }
 
     m_ifState = SERIAL_INTERFACE_IDLE;
 }

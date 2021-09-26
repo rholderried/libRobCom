@@ -35,15 +35,20 @@ DebugMessages::DebugMessages()
     // Initialize the output buffer for the debug messages
     m_msgRingBuffer = new Ringbuffer<uint8_t>(MSG_BUFFER_SIZE, MSG_BUFFER_WIDTH);
     m_msgBuf        = new uint8_t [MSG_BUFFER_WIDTH];
-
 }
 
 /*******************************************************************************//***
 * \brief Destructor
-*
 ************************************************************************************/
 DebugMessages::~DebugMessages()
 {
+    // Delete the receiver thread
+    if (m_connectionEstablished)
+    {
+        m_commInterface->m_receiveTaskRunning = false;
+        delete m_eventHandlerPtr;
+    }
+    
     delete m_commInterface;
     delete m_msgRingBuffer;
     delete m_msgBuf;
@@ -83,17 +88,36 @@ void DebugMessages::msgReceiver(uint8_t *buffer, uint32_t size)
 }
 
 /*******************************************************************************//***
-* \brief Message receiver
+* \brief Open a serial connection to the device
 *
 * Gets called by the lower level receiving routine and manages the ringbuffer.
 *
+* @param    portNo      Port number of the COM port to be opened.
+* @param    baudrate    Baudrate that gets configured for the port.
 ************************************************************************************/
-void DebugMessages::msgStateMachine(void)
+void DebugMessages::establishConnection(uint8_t portNo, uint32_t baudrate)
 {
-    // Debug message management is easy, since its just a simplex data connection
-    if (this->m_commInterface->m_ifState == SERIAL_INTERFACE_IDLE)
-        // Restart the interface to receive more data
-        this->m_commInterface->receiveTask(RECEIVE_BUFFER_WIDTH, DEBUG_MSG_BYTE_TO_BYTE_TIMEOUT_MS);
+    bool connectionEstablished;
 
+    // TODO: Error handling?
+    connectionEstablished = m_commInterface->openPort(portNo, baudrate);
+
+    if (connectionEstablished)
+    {
+        // Start the communcication receive task
+        m_commInterface->m_receiveTaskRunning = true;
+        m_eventHandlerPtr = new ThreadWrapper(std::bind(SerialInterface::receiveTask, this->m_commInterface));
+
+        // Flag the successfully established connection
+        m_connectionEstablished = true;
+    }
 }
+// void DebugMessages::msgStateMachine(void)
+// {
+//     // Debug message management is easy, since its just a simplex data connection
+//     if (this->m_commInterface->m_ifState == SERIAL_INTERFACE_IDLE)
+//         // Restart the interface to receive more data
+//         this->m_commInterface->receiveTask(RECEIVE_BUFFER_WIDTH, DEBUG_MSG_BYTE_TO_BYTE_TIMEOUT_MS);
+
+// }
 
