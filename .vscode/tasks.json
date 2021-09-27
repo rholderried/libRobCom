@@ -10,6 +10,7 @@
                 //"${file}",
 				"${workspaceFolder}\\main.cpp",
 				"${workspaceFolder}\\Sources\\*.cpp",
+                "${workspaceFolder}\\Sources\\*.c",
                 "-o",
                 "${workspaceFolder}\\RobComTest.exe",
 				"-I",

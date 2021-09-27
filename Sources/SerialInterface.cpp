@@ -19,6 +19,7 @@
  ***********************************************************************************/
 #include "SerialInterface.h"
 #include "Helpers.h"
+#include "Configuration.h"
 
 #ifdef OS_WIN32
 #include "WinRS232.h"

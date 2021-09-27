@@ -76,7 +76,7 @@ tRS232ERROR RS232Open(tRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTESIZ
 
   COMMTIMEOUTS Cptimeouts;
 
-  Cptimeouts.ReadIntervalTimeout         = 0;
+  Cptimeouts.ReadIntervalTimeout         = 10;
   Cptimeouts.ReadTotalTimeoutMultiplier  = 0;
   Cptimeouts.ReadTotalTimeoutConstant    = 0;
   Cptimeouts.WriteTotalTimeoutMultiplier = 0;

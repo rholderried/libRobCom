@@ -26,24 +26,24 @@
 /*******************************************************************************
  * Classes
  ******************************************************************************/
-class TestClass
-{
+// class TestClass
+// {
 
-public:
-	EEPROMVariables* EEPtr;
-	RAMVariables* RAMPtr;
+// public:
+// 	EEPROMVariables* EEPtr;
+// 	RAMVariables* RAMPtr;
 
-	// Public member functions
-	TestClass();
-	void TestOnConnectionCB(int status);
-	void TestDataCB(uint8_t *bufPtr, int datalength);
-	void TestGetCommandCallback(void* pSetup, unsigned char* buf_ptr, int status);
-	void TestLiveDatalogStartCommandCB(int status);
-	void TestLiveDatalogStopCommandCB(int status);
-	void TestMemoryReadoutCommandCB(int status);
-	void TestOnVariableInitCB(int status);
-	~TestClass();
-};
+// 	// Public member functions
+// 	TestClass();
+// 	void TestOnConnectionCB(int status);
+// 	void TestDataCB(uint8_t *bufPtr, int datalength);
+// 	void TestGetCommandCallback(void* pSetup, unsigned char* buf_ptr, int status);
+// 	void TestLiveDatalogStartCommandCB(int status);
+// 	void TestLiveDatalogStopCommandCB(int status);
+// 	void TestMemoryReadoutCommandCB(int status);
+// 	void TestOnVariableInitCB(int status);
+// 	~TestClass();
+// };
 
 
 #endif /* MAIN_H_ */

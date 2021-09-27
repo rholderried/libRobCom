@@ -47,18 +47,17 @@ class DebugMessages
         ~DebugMessages();
         
         //void msgStateMachine (void);
-        void establishConnection(uint8_t portNo, uint32_t baudrate);
-
+        bool establishConnection(uint8_t portNo, uint32_t baudrate);
+        Ringbuffer<uint8_t> *m_msgRingBuffer        = nullptr;
 
 
     private:
         ThreadWrapper       *m_eventHandlerPtr      = nullptr;
         // Ringbuffer holding the debug messages
-	    Ringbuffer<uint8_t> *m_msgRingBuffer        = nullptr;
+	    
         SerialInterface     *m_commInterface        = nullptr;
         uint8_t             *m_msgBuf;
         uint32_t            m_actualBufferIdx       = 0;
-        ThreadWrapper       *m_eventHandlerPtr      = nullptr;
         bool                m_connectionEstablished = false;
 
         void msgReceiver (uint8_t *buffer, uint32_t size);
