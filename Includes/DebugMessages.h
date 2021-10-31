@@ -24,13 +24,13 @@
  ***********************************************************************************/
 
 /** Define which message length can be get from each serial interface*/
-#define MSG_BUFFER_WIDTH                    1024
+#define DBGMSG_BUFFER_WIDTH                    1024
 /** Define the width of the receive buffer (Stack buffer!)*/
-#define RECEIVE_BUFFER_WIDTH                128
+#define RECEIVE_BUFFER_WIDTH                    128
 /** Defines how many messages can be hold by the debug message buffer and the 
  * RobComSerial message buffer*/
-#define MSG_BUFFER_SIZE                     10
-#define DEBUG_MSG_BYTE_TO_BYTE_TIMEOUT_MS   10
+#define DBGMSG_BUFFER_SIZE                     10
+#define DEBUG_MSG_BYTE_TO_BYTE_TIMEOUT_MS       10
 
 /************************************************************************************
  * Type definitions

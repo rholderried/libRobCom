@@ -33,8 +33,8 @@ DebugMessages::DebugMessages()
 {
     m_commInterface = new SerialInterface(std::bind(msgReceiver, this, std::placeholders::_1, std::placeholders::_2), RECEIVE_BUFFER_WIDTH);
     // Initialize the output buffer for the debug messages
-    m_msgRingBuffer = new Ringbuffer<uint8_t>(MSG_BUFFER_SIZE, MSG_BUFFER_WIDTH);
-    m_msgBuf        = new uint8_t [MSG_BUFFER_WIDTH];
+    m_msgRingBuffer = new Ringbuffer<uint8_t>(DBGMSG_BUFFER_SIZE, DBGMSG_BUFFER_WIDTH);
+    m_msgBuf        = new uint8_t [DBGMSG_BUFFER_WIDTH];
 }
 
 /*******************************************************************************//***
@@ -46,6 +46,7 @@ DebugMessages::~DebugMessages()
     if (m_connectionEstablished)
     {
         m_commInterface->m_receiveTaskRunning = false;
+        // Thread will be joined in the d'tor of the Threadwrapper object
         delete m_eventHandlerPtr;
     }
     
@@ -72,7 +73,7 @@ void DebugMessages::msgReceiver(uint8_t *buffer, uint32_t size)
     {
         m_msgBuf[m_actualBufferIdx] = buffer[i];
         
-        if (m_actualBufferIdx < MSG_BUFFER_WIDTH)
+        if (m_actualBufferIdx < DBGMSG_BUFFER_WIDTH)
             m_actualBufferIdx++;
 
         if (buffer[i] == '\n')
@@ -81,7 +82,7 @@ void DebugMessages::msgReceiver(uint8_t *buffer, uint32_t size)
             m_msgRingBuffer->PutElement(m_msgBuf);
             m_actualBufferIdx = 0;
             // Overwrite the previously received data
-            std::memset(m_msgBuf, 0,(size_t)MSG_BUFFER_WIDTH);
+            std::memset(m_msgBuf, 0,(size_t)DBGMSG_BUFFER_WIDTH);
         }
     }
 

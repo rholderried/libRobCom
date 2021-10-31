@@ -26,22 +26,22 @@
 ***********************************************************************************/
 typedef enum
 {
-    DEBUGMESSAGES,
-    ROBCOMSERIAL,
-    ROBCOMUSB
-}tCONNECTIONTYPE;
+    COMTYPE_DEBUGMESSAGES,
+    COMTYPE_ROBCOMSERIAL
+}tSERIALCOMTYPE;
 /***********************************************************************************
 * Classes
 ***********************************************************************************/
 class RobCom
 {
     public:
-        DebugMessages m_debugMessages;
+        DebugMessages *m_debugMessages = nullptr;
 
         RobCom();
-        bool establishSerialConnection(tCONNECTIONTYPE connectionType, uint8_t portNo, uint32_t baudrate);
-        bool establishUSBConnection(tCONNECTIONTYPE connectionType, COMCONFIG usbConfig);
-        int32_t getData(DebugMessages *pInst, uint8_t** dataPtr);
-        int32_t getData(RobComUSB *pInst, uint8_t** dataPtr);
+        
+        bool establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, uint32_t baudrate);
+        //bool establishUSBConnection(COMCONFIG usbConfig);
+        uint32_t getDebugMsg(DebugMessages *pInst, uint8_t** dataPtr);
+        //int32_t getRobComSerialMsg(RobComUSB *pInst, uint8_t** dataPtr);
 
 };
