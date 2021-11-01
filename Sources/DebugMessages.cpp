@@ -95,6 +95,7 @@ void DebugMessages::msgReceiver(uint8_t *buffer, uint32_t size)
 *
 * @param    portNo      Port number of the COM port to be opened.
 * @param    baudrate    Baudrate that gets configured for the port.
+* @returns true when connection has been established successfully, false otherwise
 ************************************************************************************/
 bool DebugMessages::establishConnection(uint8_t portNo, uint32_t baudrate)
 {

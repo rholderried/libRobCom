@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug main.cpp",
+            "name": "Debug RobCom",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\Test\\RobComTest.exe",
+            "program": "${workspaceFolder}\\Debug\\DebugRobCom.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

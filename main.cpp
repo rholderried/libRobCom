@@ -6,13 +6,11 @@
  */
 
 #include <iostream>
+#include <sys/time.h>
 #include <chrono>
 #include "main.h"
-#include "Includes/Variables.h"
-// #include "Includes/RobComUSB.h"
-// #include "Includes/RobComUSBDefaults.h"
-// #include "Includes/USBInterface.h"
-#include "DebugMessages.h"
+#include "DebugRobComShared.h"
+#include "RobCom.h"
 
 using namespace std;
 
@@ -182,27 +180,40 @@ int main()
 
 	// delete pInterface;
 	// delete pTestClass;
-	DebugMessages *msgs = new DebugMessages();
+
 	uint8_t *buffer;
-
-	bool connectionEstablished = msgs->establishConnection(5, 115384);
-
-	if (!connectionEstablished)
-		cout << "Connection could not be established" << endl;
-	else
-		cout << "Yeah! Connection!" << endl;
-
-	while(connectionEstablished)
+	time_t start = time(nullptr);
+	time_t elapsed;
+	RobCom *robComInst = RobComInit();
+	try
 	{
-		if (msgs->m_msgRingBuffer->GetElement(&buffer))
-			cout << buffer << endl;
-
-		for(int i = 0; i < 100000000; i++)
-			NOP_FUNCTION;
-
-		cout << "Still alive" << endl;
-		
+		debugMsgInterface(robComInst, 5, 115384);
+		cout << "Yeah! Connection!" << endl;
 	}
+	catch (const char *msg)
+	{
+		cout << msg << endl;
+		delete robComInst;
+		return 1;
+	}
+	
+	while(true)
+	{
+		elapsed = time(nullptr) - start;
+
+		if (elapsed >= 15)
+			break;
+
+		buffer = getDebugMsg(robComInst);
+
+		if (buffer != nullptr)
+		{
+			cout << buffer << endl;
+		}
+
+		this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+	deleteRobCom(robComInst);
 
 	return 0;
 }

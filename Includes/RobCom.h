@@ -8,6 +8,11 @@
 *      - 2021-09-30 - File creation. 
 *                     
 ***********************************************************************************/
+
+#ifndef ROBCOM_H_
+#define ROBCOM_H_
+
+
 /***********************************************************************************
 * Includes
 ***********************************************************************************/
@@ -38,6 +43,7 @@ class RobCom
         DebugMessages *m_debugMessages = nullptr;
 
         RobCom();
+        ~RobCom();
         
         bool establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, uint32_t baudrate);
         //bool establishUSBConnection(COMCONFIG usbConfig);
@@ -45,3 +51,5 @@ class RobCom
         //int32_t getRobComSerialMsg(RobComUSB *pInst, uint8_t** dataPtr);
 
 };
+
+#endif // ROBCOM_H_

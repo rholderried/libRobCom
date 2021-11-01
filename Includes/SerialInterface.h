@@ -70,6 +70,4 @@ private:
     tRS232 m_Rs232;
 };
 
-
-
-#endif \\ SERIALINTERFACE_H_
+#endif // SERIALINTERFACE_H_

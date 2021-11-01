@@ -73,11 +73,15 @@ SerialInterface::SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSiz
 ************************************************************************************/
 bool SerialInterface::openPort(uint8_t portNo, uint32_t baudrate)
 {
-    bool retVal;
+    bool successFlag;
     // Lower level RS232 opening function
-    retVal = (RS232Open(&this->m_Rs232, portNo, baudrate, BYTE_SIZE_8, NO_PARITY, STOPBITS_1_0) == 0);
+    successFlag = (RS232Open(&this->m_Rs232, portNo, baudrate, BYTE_SIZE_8, NO_PARITY, STOPBITS_1_0) == 0);
 
-    return retVal;
+    // Flush the receive and transmit buffers
+    RS232FlushRX(&this->m_Rs232);
+    RS232FlushTX(&this->m_Rs232);
+
+    return successFlag;
 }
 
 /*******************************************************************************//***

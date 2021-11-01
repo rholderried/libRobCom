@@ -10,10 +10,13 @@
                 "${workspaceFolder}\\main.cpp",
                 "${workspaceFolder}\\Sources\\*.cpp",
                 "${workspaceFolder}\\Sources\\*.c",
+                "${workspaceFolder}\\Shared\\RobComShared.cpp",
                 "-o",
-                "${workspaceFolder}\\Test\\RobComTest.exe",
+                "${workspaceFolder}\\Debug\\DebugRobCom.exe",
                 "-I",
                 "${workspaceFolder}\\Includes",
+                "-I",
+                "${workspaceFolder}\\Shared",
                 "-I",
                 "${workspaceFolder}\\Libraries\\libusb\\include\\libusb-1.0",
                 "-L",
@@ -30,6 +33,41 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
+            },
+            "detail": "compiler: \"C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\g++.exe\""
+        },
+        {
+            "type": "cppbuild",
+            "label": "Release Build Dynamic",
+            "command": "C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\g++.exe",
+            "args": [
+                "-D",
+                "RELEASEBUILD",
+                "-g",
+                "${workspaceFolder}\\Shared\\RobComShared.cpp",
+                "${workspaceFolder}\\Sources\\*.cpp",
+                "${workspaceFolder}\\Sources\\*.c",
+                "-o",
+                "${workspaceFolder}\\Release\\RobCom.dll",
+                "-I",
+                "${workspaceFolder}\\Includes",
+                "-I",
+                "${workspaceFolder}\\Libraries\\libusb\\include\\libusb-1.0",
+                "-L",
+                "${workspaceFolder}\\Libraries\\libusb\\MinGW64\\static",
+                "-l",
+                "usb-1.0",
+                "-shared"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
             },
             "detail": "compiler: \"C:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\g++.exe\""
         }

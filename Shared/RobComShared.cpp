@@ -18,7 +18,11 @@
 /***********************************************************************************
 * Defines
 ***********************************************************************************/
+#ifdef RELEASEBUILD
 #define DLLEXPORT extern "C" __declspec(dllexport)
+#else
+#define DLLEXPORT
+#endif
 
 /*******************************************************************************//***
 * \brief Returns an instance pointer of the RobCom interface.
@@ -31,18 +35,31 @@ DLLEXPORT RobCom* RobComInit()
 /*******************************************************************************//***
 * \brief Initializes a serial connection
 ************************************************************************************/
-DLLEXPORT int debugMsgInterface(RobCom* pInst, unsigned int portNo, unsigned int baudrate)
+DLLEXPORT void debugMsgInterface(RobCom* pInst, unsigned int portNo, unsigned int baudrate)
 {
-    return pInst->establishSerialConnection(COMTYPE_DEBUGMESSAGES, portNo, baudrate);
+    bool success = pInst->establishSerialConnection(COMTYPE_DEBUGMESSAGES, portNo, baudrate);
+
+    if (!success)
+        throw "Connection to device could not be established.";
 }
 
 /*******************************************************************************//***
 * \brief Writes the messages into the buffer passed by the application
 ************************************************************************************/
-DLLEXPORT int getDebugMsg(RobCom* pInst, unsigned char* bufferExt)
+DLLEXPORT uint8_t* getDebugMsg(RobCom* pInst)
 {
-    // Do we really need that typecast or is it working just with uint8_t?
-    uint8_t *bufPtr = reinterpret_cast<uint8_t*>(bufferExt);
+    uint8_t * returnBuf;
 
-    return pInst->getDebugMsg(pInst->m_debugMessages, &bufPtr);
+    if (pInst->getDebugMsg(pInst->m_debugMessages, &returnBuf) == 0)
+        return nullptr;
+    else
+        return returnBuf;
+}
+
+/*******************************************************************************//***
+* \brief Destroys the RobCom object.
+************************************************************************************/
+DLLEXPORT void deleteRobCom(RobCom* pInst)
+{
+    delete pInst;
 }
