@@ -89,7 +89,7 @@ int32_t RS232ReadBufferFromPort(tRS232 *pInst, uint8_t *buf, uint32_t size);
 // tRS232ERROR RS232SendByte(tRS232 *pInst, uint8_t byte);
 int32_t RS232SendBuffer(tRS232 *pInst, uint8_t *buffer, uint32_t size);
 void RS232ClosePort(tRS232 *pInst);
-void RS232ConfigureReadTimeout(tRS232 *pInst, uint32_t byteToByteTimeout_ms);
+bool RS232ConfigureReadTimeout(tRS232 *pInst, uint32_t byteToByteTimeout_ms, uint32_t totalTimeoutConstant_ms, uint32_t totalTimeoutMultiplier);
 // void RS232_cputs(int, const char *);
 // int RS232_IsDCDEnabled(int);
 // int RS232_IsRINGEnabled(int);

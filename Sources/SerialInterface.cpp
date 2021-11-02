@@ -85,15 +85,35 @@ bool SerialInterface::openPort(uint8_t portNo, uint32_t baudrate)
 }
 
 /*******************************************************************************//***
+* \brief Configures the read timeouts in milliseconds
+*
+* @param    byteToByteTimeout_ms        Maximum time between consecutive bytes read from port.
+* @param    totalTimeoutConstant_ms     "Offset" timeout that gets added to the value computed with totalTimeoutMultiplier_ms.
+* @param    totalTimeoutMultiplier_ms   Value of milliseconds to be multiplied by the number requested bytes.
+* @returns  Success indicator
+************************************************************************************/
+bool SerialInterface::configureReadTimeouts(uint32_t byteToByteTimeout_ms, uint32_t totalTimeoutConstant_ms, uint32_t totalTimeoutMultiplier_ms)
+{
+    bool successFlag = false;
+
+    try
+    {
+        successFlag = RS232ConfigureReadTimeout(&this->m_Rs232, byteToByteTimeout_ms, totalTimeoutConstant_ms, totalTimeoutMultiplier_ms);
+    }
+    catch(...)
+    {
+        ;
+    }
+
+    return successFlag;
+}
+
+/*******************************************************************************//***
 * \brief Function that receives data from the serial port
 *
 * Usually runs in its own thread in order to not block the main application. Calls 
 * the receive callback when data has arrived.
 *
-* @param    buffer              Pointer to the buffer the data gets stored in. 
-* @param    size                Data size that is to be received.
-* @param    intervalTimeout_ms  Maximum Byte-to-byte timespan of the data stream
-*                               before the Readfile function returns.
 ************************************************************************************/
 void SerialInterface::receiveTask(void)
 {
@@ -101,8 +121,6 @@ void SerialInterface::receiveTask(void)
     int32_t actualReceived = 0;
 
     m_ifState = SERIAL_INTERFACE_RECEIVING;
-    // Set timeout
-    // RS232ConfigureReadTimeout(&m_Rs232, intervalTimeout_ms);
 
     while (m_receiveTaskRunning)
     {

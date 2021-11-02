@@ -27,7 +27,8 @@ class RobComInterface:
         """
 
         RobComHdl      = ctypes.POINTER(ctypes.c_char)
-        dbgMsgPtr      = np.ctypeslib.ndpointer(dtype=np.uint8, ndim=1, shape=(1024,), flags='C_CONTIGUOUS')
+        #dbgMsgPtr      = np.ctypeslib.ndpointer(dtype=np.uint8, ndim=1, shape=(1024,), flags='C_CONTIGUOUS')
+        dbgMsgPtr      = ctypes.POINTER(ctypes.POINTER(ctypes.c_char))
 
         os.add_dll_directory(os.path.dirname(libPath))
         self.lib = ctypes.CDLL(libPath, winmode=0)
@@ -35,8 +36,8 @@ class RobComInterface:
 #        self.lib.RobComInit.argtypes        = []
         self.lib.RobComInit.restype         = RobComHdl
         self.lib.debugMsgInterface.argtypes = [RobComHdl, ctypes.c_uint, ctypes.c_uint]
-        self.lib.getDebugMsg.argtypes       = [RobComHdl]
-        self.lib.getDebugMsg.restype        = dbgMsgPtr
+        self.lib.getDebugMsg.argtypes       = [RobComHdl, dbgMsgPtr]
+        self.lib.getDebugMsg.restype        = ctypes.c_uint32
         self.lib.deleteRobCom.argtypes      = [RobComHdl]
 
         self.RobComInstance = self.lib.RobComInit() # Initialize a RobCom type object
@@ -44,7 +45,6 @@ class RobComInterface:
     def __del__(self):
 
          self.lib.deleteRobCom(self.RobComInstance)
-
 
 
     def closeRobCom(self):
@@ -84,16 +84,18 @@ class RobComInterface:
             - Interface description object
         """
 
-        decoded = None
+        # message = self.lib.getDebugMsg(self.RobComInstance)
+        message = ctypes.POINTER(ctypes.c_char)()
+        received = self.lib.getDebugMsg(self.RobComInstance, ctypes.byref(message))
 
-        try:
-            message = self.lib.getDebugMsg(self.RobComInstance)
-            splitted = np.split(message, np.where(message==10)[0])[0]
-            decoded = splitted.tostring().decode("ascii")
-        except:
-            pass
-    
-        return decoded
+        if received > 0:
+            message = np.ctypeslib.as_array(message, shape=(1024,))
+            message = np.split(message, np.where(message==b'\n')[0])[0]
+            message = message.tostring()
+        else:
+            message = None
+
+        return message
 
 
 

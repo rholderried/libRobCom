@@ -22,7 +22,8 @@
  ******************************************************************************/
 RobCom* RobComInit(void);
 void debugMsgInterface(RobCom* pInst, unsigned int portNo, unsigned int baudrate);
-uint8_t* getDebugMsg(RobCom* pInst);
+uint32_t getDebugMsg(RobCom* pInst, uint8_t** buffer);
+// uint8_t* getDebugMsg(RobCom* pInst);
 void deleteRobCom(RobCom* pInst);
 
 

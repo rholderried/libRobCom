@@ -13,6 +13,8 @@
 
 #include "WinRS232.h"
 #include <stdint.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /***********************************************************************************
 * Function definitions
@@ -138,17 +140,20 @@ int32_t RS232SendBuffer(tRS232 *pInst, uint8_t *buffer, uint32_t size)
 }
 
 
-void RS232ConfigureReadTimeout(tRS232 *pInst, uint32_t byteToByteTimeout_ms)
+bool RS232ConfigureReadTimeout(tRS232 *pInst, uint32_t byteToByteTimeout_ms, uint32_t totalTimeoutConstant_ms, uint32_t totalTimeoutMultiplier)
 {
+  bool successFlag = false;
   COMMTIMEOUTS cto;
 
   GetCommTimeouts(pInst->portHandle,&cto);
 
   cto.ReadIntervalTimeout = byteToByteTimeout_ms;
-  cto.ReadTotalTimeoutConstant = 0;
-  cto.ReadTotalTimeoutMultiplier = 0;
+  cto.ReadTotalTimeoutConstant = totalTimeoutConstant_ms;
+  cto.ReadTotalTimeoutMultiplier = totalTimeoutMultiplier;
 
-  SetCommTimeouts(pInst->portHandle, &cto);
+  successFlag = SetCommTimeouts(pInst->portHandle, &cto);
+
+  return successFlag;
 }
 
 

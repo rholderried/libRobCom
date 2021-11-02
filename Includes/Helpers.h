@@ -16,6 +16,8 @@
 #include <mutex>
 #include <functional>
 #include <chrono>
+#include <stdio.h>
+#include <string.h>
 
 /*******************************************************************************
  * Typedefs
@@ -188,6 +190,7 @@ public:
 	unsigned int m_bufSize;
 	unsigned int m_bufWidth;
 	unsigned int m_bufSpace;
+	unsigned int *m_bufSlotDataSize;
 	// the message buffer
 
 	int m_lastDataIndex;
@@ -208,6 +211,7 @@ public:
 		m_firstDataIndex = -1;
 		m_dataLost = false;
 		m_bufferBusy = false;
+		m_bufSlotDataSize = new unsigned int [bufSize];
 		// Instantiate new Ringbuffer
 		m_ringbuffer = new T [bufSize * bufWidth];
 		// This callback has to be initialized explicitly
@@ -216,10 +220,11 @@ public:
 	~Ringbuffer()
 	{
 		delete m_ringbuffer;
+		delete m_bufSlotDataSize;
 	}
 
 	// Put one element into the ringbuffer
-	void PutElement(T* element, bool lock = true)
+	void PutElement(T* element, unsigned int size = 0, bool lock = true)
 	{
 		unsigned int i = 0;
 		int index;
@@ -227,24 +232,30 @@ public:
 		if(lock)
 			AquireBufferAccess();
 
+		// The whole buffer witdth gets filled when the size parameter equals 0
+		if (size == 0 || size > m_bufWidth)
+			size = m_bufWidth;
+
 		index = ValidateNextDataIndex();// * m_bufWidth;
 
 		// Copy elements into the buffer
-		while(i < m_bufWidth)
+		while(i < size)
 		{
 			m_ringbuffer[index + i] = element[i];
 			i++;
 		}
+
+		m_bufSlotDataSize[m_lastDataIndex] = size;
 
 		if(lock)
 			ReleaseBuffer();
 	}
 
 	// Get element at a specific buffer index
-	bool GetElement(T** bufPtr, bool lock = true)
+	unsigned int GetElement(T** bufPtr, bool lock = true)
 	{
 		int firstDataIndex = 0;
-		bool retVal = false;
+		unsigned int retVal = 0;
 
 		if(lock)
 			AquireBufferAccess();
@@ -256,7 +267,8 @@ public:
 		{
 			// Get the Element from the last Buffer index
 			*bufPtr = &m_ringbuffer[firstDataIndex * m_bufWidth];
-			retVal = true;
+			retVal = m_bufSlotDataSize[firstDataIndex];
+			m_bufSlotDataSize[firstDataIndex] = 0;
 		}
 
 		if(lock)
@@ -289,7 +301,7 @@ public:
 	// Delete the newest data in the buffer
 	bool DeleteLastData(bool lock = true)
 	{
-		bool retVal = false;
+		bool successFlag = false;
 
 		if(lock)
 			AquireBufferAccess();
@@ -304,16 +316,18 @@ public:
 				if(static_cast<unsigned int>(--m_lastDataIndex) > (m_bufSize - 1))
 					m_lastDataIndex = m_bufSize - 1;
 
+				m_bufSlotDataSize[m_lastDataIndex] = 0;
+
 				m_bufSpace++;
 
-				retVal = true;
+				successFlag = true;
 			}
 		}
 
 		if(lock)
 			ReleaseBuffer();
 
-		return retVal;
+		return successFlag;
 	}
 
 private:

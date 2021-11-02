@@ -62,6 +62,7 @@ public:
     SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSize);
     SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSize, uint8_t portNo, uint32_t baudrate);
     bool openPort(uint8_t portNo, uint32_t baudrate);
+    bool configureReadTimeouts(uint32_t byteToByteTimeout_ms = 0, uint32_t totalTimeoutConstant_ms = 0, uint32_t totalTimeoutMultiplier = 0);
     // void changeReceiveTimeout(uint32_t timeout_ms);
     void receiveTask(void);
     void sendBuffer(uint8_t* buffer, uint32_t size);

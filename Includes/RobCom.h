@@ -19,13 +19,18 @@
 #include <iostream>
 #include <cstdint>
 #include <cstdbool>
-#include "DebugMessages.h"
-#include "RobComUSB.h"
-// #include "RobComSerial.h"
+#include "SerialMessageHandler.h"
+//#include "RobComUSB.h"
+#include "RobComSerial.h"
 /***********************************************************************************
 * Defines
 ***********************************************************************************/
-
+#define DEFAULT_DEBUG_MESSAGES_BUFFER_WIDTH     1024
+#define DEFAULT_DEBUG_MESSAGES_BUFFER_SIZE      10
+#define DEBUG_MESSAGES_TERMINATION_SYMBOL       '\n'
+#define RSMSG_FRAME_LENGTH                      64
+#define RSMSG_BUFFER_WIDTH                      RSMSG_FRAME_LENGTH + 5
+#define RSMSG_BUFFER_SIZE                       10
 /***********************************************************************************
 * Typedefs
 ***********************************************************************************/
@@ -40,14 +45,14 @@ typedef enum
 class RobCom
 {
     public:
-        DebugMessages *m_debugMessages = nullptr;
+        SerialMessageHandler *m_debugMessages = nullptr;
 
         RobCom();
         ~RobCom();
         
-        bool establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, uint32_t baudrate);
+        bool establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, uint32_t baudrate, uint32_t bufLen = 0);
         //bool establishUSBConnection(COMCONFIG usbConfig);
-        uint32_t getDebugMsg(DebugMessages *pInst, uint8_t** dataPtr);
+        uint32_t getDebugMsg(SerialMessageHandler *pInst, uint8_t** dataPtr);
         //int32_t getRobComSerialMsg(RobComUSB *pInst, uint8_t** dataPtr);
 
 };

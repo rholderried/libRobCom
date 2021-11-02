@@ -17,7 +17,7 @@
 #include <cstdbool>
 #include <iostream>
 #include "RobCom.h"
-#include "DebugMessages.h"
+#include "SerialMessageHandler.h"
 
 /***********************************************************************************
 * Defines
@@ -44,14 +44,18 @@ RobCom::~RobCom()
 /*******************************************************************************//***
 * \brief Setup a serial connection to the RobCom device
 ************************************************************************************/
-bool RobCom::establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, uint32_t baudrate)
+bool RobCom::establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, uint32_t baudrate, uint32_t bufLen)
 {
     bool successFlag = false;
 
     switch(comType)
     {
         case COMTYPE_DEBUGMESSAGES:
-            m_debugMessages = new DebugMessages();
+
+            if (bufLen == 0)
+                bufLen = DEFAULT_DEBUG_MESSAGES_BUFFER_WIDTH;
+
+            m_debugMessages = new SerialMessageHandler(bufLen, DEFAULT_DEBUG_MESSAGES_BUFFER_SIZE, DEBUG_MESSAGES_TERMINATION_SYMBOL);
             successFlag = m_debugMessages->establishConnection(portNo, baudrate);
 
             break;
@@ -66,9 +70,9 @@ bool RobCom::establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, u
 /*******************************************************************************//***
 * \brief Get data from the debug interface
 ************************************************************************************/
-uint32_t RobCom::getDebugMsg(DebugMessages *pInst, uint8_t** dataPtr)
+uint32_t RobCom::getDebugMsg(SerialMessageHandler *pInst, uint8_t** dataPtr)
 {
-    uint32_t hadElements = uint32_t(pInst->m_msgRingBuffer->GetElement(dataPtr));
+    uint32_t retrievedData = uint32_t(pInst->m_msgRingBuffer->GetElement(dataPtr));
 
-    return (hadElements * DBGMSG_BUFFER_WIDTH);
+    return retrievedData;
 }

@@ -182,6 +182,7 @@ int main()
 	// delete pTestClass;
 
 	uint8_t *buffer;
+	uint32_t received;
 	time_t start = time(nullptr);
 	time_t elapsed;
 	RobCom *robComInst = RobComInit();
@@ -204,9 +205,9 @@ int main()
 		if (elapsed >= 15)
 			break;
 
-		buffer = getDebugMsg(robComInst);
+		received = getDebugMsg(robComInst, &buffer);
 
-		if (buffer != nullptr)
+		if (received > 0)
 		{
 			cout << buffer << endl;
 		}

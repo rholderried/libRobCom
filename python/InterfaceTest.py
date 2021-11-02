@@ -7,7 +7,7 @@ IF = RC()
 debugHdl = IF.openConnection(DebugMessage, portNo=5, baudrate=115384)
 
 while (i < 1000):
-   
+    
     message = IF.getDebugMessages(debugHdl)
     if message is not None:
         print (message)

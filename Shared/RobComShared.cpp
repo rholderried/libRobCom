@@ -43,17 +43,25 @@ DLLEXPORT void debugMsgInterface(RobCom* pInst, unsigned int portNo, unsigned in
         throw "Connection to device could not be established.";
 }
 
+// /*******************************************************************************//***
+// * \brief Writes the messages into the buffer passed by the application
+// ************************************************************************************/
+// DLLEXPORT uint8_t* getDebugMsg(RobCom* pInst)
+// {
+//     uint8_t * returnBuf;
+
+//     if (pInst->getDebugMsg(pInst->m_debugMessages, &returnBuf) == 0)
+//         return nullptr;
+//     else
+//         return returnBuf;
+// }
+
 /*******************************************************************************//***
 * \brief Writes the messages into the buffer passed by the application
 ************************************************************************************/
-DLLEXPORT uint8_t* getDebugMsg(RobCom* pInst)
+DLLEXPORT uint32_t getDebugMsg(RobCom* pInst, uint8_t** buffer)
 {
-    uint8_t * returnBuf;
-
-    if (pInst->getDebugMsg(pInst->m_debugMessages, &returnBuf) == 0)
-        return nullptr;
-    else
-        return returnBuf;
+    return pInst->getDebugMsg(pInst->m_debugMessages, buffer);
 }
 
 /*******************************************************************************//***
