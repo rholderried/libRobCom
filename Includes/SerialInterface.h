@@ -19,6 +19,8 @@
 #include <cstdint>
 #include <cstdbool>
 #include <functional>
+#include <condition_variable>
+#include <mutex>
 #include "Configuration.h"
 
 #ifdef OS_WIN32
@@ -54,10 +56,14 @@ class SerialInterface
 {
 public:
     
-    tSERIALIFSTATE  m_ifState;
-    ReceiveCallback m_receive_cb;
-    uint32_t        m_receiveSize;
-    bool            m_receiveTaskRunning;
+    tSERIALIFSTATE          m_ifState;
+    ReceiveCallback         m_receive_cb;
+    uint32_t                m_receiveSize;
+    bool                    m_receiveTaskRunning;
+    bool                    m_readyToReceive;
+    std::condition_variable m_cond;
+    std::mutex              m_mtx;
+
 
     SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSize);
     SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSize, uint8_t portNo, uint32_t baudrate);

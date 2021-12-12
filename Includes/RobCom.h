@@ -31,6 +31,7 @@
 #define RSMSG_FRAME_LENGTH                      64
 #define RSMSG_BUFFER_WIDTH                      RSMSG_FRAME_LENGTH + 5
 #define RSMSG_BUFFER_SIZE                       10
+#define DEFAULT_RECEIVE_TIMEOUT_MS              200
 /***********************************************************************************
 * Typedefs
 ***********************************************************************************/
@@ -45,14 +46,20 @@ typedef enum
 class RobCom
 {
     public:
-        SerialMessageHandler *m_debugMessages = nullptr;
+        SerialMessageHandler    *m_debugMessages = nullptr;
+        RobComSerial            *m_robComSerial = nullptr;
 
         RobCom();
         ~RobCom();
         
-        bool establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, uint32_t baudrate, uint32_t bufLen = 0);
+        bool establishSerialConnection( tSERIALCOMTYPE comType, 
+                                        uint8_t portNo, 
+                                        uint32_t baudrate, 
+                                        uint32_t bufLen = 0, 
+                                        uint32_t receiveTimeout_ms = DEFAULT_RECEIVE_TIMEOUT_MS);
+
         //bool establishUSBConnection(COMCONFIG usbConfig);
-        uint32_t getDebugMsg(SerialMessageHandler *pInst, uint8_t** dataPtr);
+        uint32_t getDebugMsg(uint8_t** dataPtr);
         //int32_t getRobComSerialMsg(RobComUSB *pInst, uint8_t** dataPtr);
 
 };

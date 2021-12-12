@@ -52,6 +52,7 @@
         "streambuf": "cpp",
         "typeinfo": "cpp",
         "cstdbool": "cpp",
-        "winrs232.h": "c"
+        "winrs232.h": "c",
+        "cstring": "cpp"
     }
 }

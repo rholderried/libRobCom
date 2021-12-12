@@ -42,6 +42,7 @@ SerialMessageHandler::SerialMessageHandler(uint32_t bufWidth, uint32_t bufSize, 
     m_bufWidth      = bufWidth;
     m_bufSize       = bufSize;
     m_msgTermSymbol = msgTermSymbol;
+    m_receiveImmediately = false;
 }
 
 /*******************************************************************************//***
@@ -92,15 +93,54 @@ void SerialMessageHandler::msgReceiver(uint8_t *buffer, uint32_t size)
             m_actualBufferIdx = 0;
             // Overwrite the previously received data
             std::memset(m_msgBuf, 0,(size_t)m_bufWidth);
+
+            // Call the external function, if there is one
+            if (m_callbacks.onReceivedMsg != nullptr)
+                m_callbacks.onReceivedMsg();
+
+            // Eventually prevent serial interface from receiving more data
+            if (!m_receiveImmediately)
+                m_commInterface->m_readyToReceive = false;
         }
     }
 
 }
 
 /*******************************************************************************//***
-* \brief Open a serial connection to the device
+* \brief Starts the receiving routine
 *
-* Gets called by the lower level receiving routine and manages the ringbuffer.
+* @param    enableReceiveState  Decides if the low level receiving routine shall be
+*                               entered immediately. Shall be set to false for flow
+*                               controlled communication.
+* @returns true when the start of the receiver was successfull, false otherwise
+************************************************************************************/
+bool SerialMessageHandler::startReceiver(bool enableReceiveState)
+{
+    if (m_connectionEstablished == false)
+        return false;
+    else
+    {
+        m_commInterface->m_receiveTaskRunning = true;
+        m_commInterface->m_readyToReceive = enableReceiveState;
+        m_eventHandlerPtr = new ThreadWrapper(std::bind(SerialInterface::receiveTask, this->m_commInterface));
+    }
+    return true;
+}
+
+/*******************************************************************************//***
+* \brief Starts the receiving routine
+*
+* @param    receiveTimeout_ms   Total time until the low level receive routine returns
+* @param    writeTimeout_ms     Total time for writing a message
+* @returns true when the timeouts config was successfull, false otherwise
+************************************************************************************/
+bool SerialMessageHandler::configureTimeouts(uint32_t receiveTimeout_ms, uint32_t writeTimeout_ms)
+{
+    return m_commInterface->configureReadTimeouts(RECEIVE_BYTE_TO_BYTE_TIMEOUT_MS, receiveTimeout_ms);
+}
+
+/*******************************************************************************//***
+* \brief Open a serial connection to the device
 *
 * @param    portNo      Port number of the COM port to be opened.
 * @param    baudrate    Baudrate that gets configured for the port.
@@ -108,20 +148,8 @@ void SerialMessageHandler::msgReceiver(uint8_t *buffer, uint32_t size)
 ************************************************************************************/
 bool SerialMessageHandler::establishConnection(uint8_t portNo, uint32_t baudrate)
 {
-    bool connectionEstablished;
-
     // TODO: Error handling?
-    connectionEstablished = m_commInterface->openPort(portNo, baudrate);
-
-    if (connectionEstablished)
-    {
-        // Start the communcication receive task
-        m_commInterface->m_receiveTaskRunning = true;
-        m_eventHandlerPtr = new ThreadWrapper(std::bind(SerialInterface::receiveTask, this->m_commInterface));
-
-        // Flag the successfully established connection
-        m_connectionEstablished = true;
-    }
+    m_connectionEstablished = m_commInterface->openPort(portNo, baudrate);
     
-    return connectionEstablished;
+    return m_connectionEstablished;
 }

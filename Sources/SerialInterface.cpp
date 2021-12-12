@@ -20,6 +20,7 @@
 #include "SerialInterface.h"
 #include "Helpers.h"
 #include "Configuration.h"
+#include <mutex>
 
 #ifdef OS_WIN32
 #include "WinRS232.h"
@@ -41,6 +42,7 @@ SerialInterface::SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSiz
     m_receive_cb            = receive_cb;
     m_receiveSize           = receiveSize;
     m_receiveTaskRunning    = false;
+    m_readyToReceive        = false;
 }
 
 /*******************************************************************************//***
@@ -58,6 +60,8 @@ SerialInterface::SerialInterface(ReceiveCallback receive_cb, uint32_t receiveSiz
     m_ifState = SERIAL_INTERFACE_IDLE;
     m_receive_cb = receive_cb;
     m_receiveSize = receiveSize;
+    m_receiveTaskRunning    = false;
+    m_readyToReceive        = false;
 
     this->openPort(portNo, baudrate);
 }
@@ -119,18 +123,24 @@ void SerialInterface::receiveTask(void)
 {
     uint8_t receiveBuffer[m_receiveSize] = {0};
     int32_t actualReceived = 0;
+    std::unique_lock<std::mutex> lock(m_mtx);
 
-    m_ifState = SERIAL_INTERFACE_RECEIVING;
-
+    
     while (m_receiveTaskRunning)
     {
+        while (!m_readyToReceive)
+            m_cond.wait(lock);
+        
+        m_ifState = SERIAL_INTERFACE_RECEIVING;
+        
+        // This is a blocking function, 
         actualReceived = RS232ReadBufferFromPort(&m_Rs232, receiveBuffer, m_receiveSize);
 
         // Call the data processing receive routine
         m_receive_cb(receiveBuffer, actualReceived);
-    }
 
-    m_ifState = SERIAL_INTERFACE_IDLE;
+        m_ifState = SERIAL_INTERFACE_IDLE;
+    }
 }
 
 /*******************************************************************************//***

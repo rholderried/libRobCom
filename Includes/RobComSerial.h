@@ -18,6 +18,8 @@
 #include <iostream>
 #include <cstdint>
 #include <cstdbool>
+#include <condition_variable>
+#include <mutex>
 #include "Helpers.h"
 #include "SerialMessageHandler.h"
 #include "SerialInterface.h"
@@ -67,16 +69,28 @@ typedef enum
 /************************************************************************************
  * Class definitions
  ***********************************************************************************/
-class RobComSerial: private SerialMessageHandler
+class RobComSerial: public SerialMessageHandler
 {
     public:
 
     RobComSerial(uint32_t bufWidth, uint32_t bufSize);
     ~RobComSerial();
 
+    bool RobComSerialInit(uint8_t portNo, uint32_t baudrate, uint32_t receiveTimeout_ms);
+    
+    void onReceivedMsg(void);
+
+    std::condition_variable m_stateMachineControl;
+    std::mutex m_stateMachineMutex;
+
     private:
     
-    ROBCOMSERIAL_STATE  m_state = ROBCOMSERIAL_IDLE;
+    void stateMachine(void);
+    void abortStateMachineExecution(void);
+
+    ROBCOMSERIAL_STATE  m_state;
+    ThreadWrapper *m_stateMachineHandler = nullptr;
+    bool m_stateMachineRunning = false;
 
     union {
         struct {

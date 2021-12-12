@@ -11,6 +11,8 @@
 #include "main.h"
 #include "DebugRobComShared.h"
 #include "RobCom.h"
+#include <stdio.h>
+#include <string>
 
 using namespace std;
 
@@ -186,9 +188,10 @@ int main()
 	time_t start = time(nullptr);
 	time_t elapsed;
 	RobCom *robComInst = RobComInit();
+	std::string delimiter = "\n";
 	try
 	{
-		debugMsgInterface(robComInst, 5, 115384);
+		debugMsgInterface(robComInst, 3, 115384);
 		cout << "Yeah! Connection!" << endl;
 	}
 	catch (const char *msg)
@@ -209,11 +212,15 @@ int main()
 
 		if (received > 0)
 		{
-			cout << buffer << endl;
+			std::string s = reinterpret_cast<char*>(buffer);
+			std::string msg = s.substr(0,s.find(delimiter));
+
+			cout << msg << endl;
 		}
 
-		this_thread::sleep_for(std::chrono::milliseconds(100));
+		this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
+	//robComInst->m_debugMessages->m_commInterface->configureReadTimeouts(10,200,2);
 	deleteRobCom(robComInst);
 
 	return 0;

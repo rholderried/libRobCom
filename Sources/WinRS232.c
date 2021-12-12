@@ -40,6 +40,7 @@ tRS232ERROR RS232Open(tRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTESIZ
   const char  *comports[RS232_MAXPORTNR] = COM_NAME_ARRAY;
   uint8_t     portIdx = portNo - 1;
   HANDLE      hComm = NULL;
+  bool        success;
 
   if((portNo > RS232_MAXPORTNR))
   {
@@ -84,7 +85,7 @@ tRS232ERROR RS232Open(tRS232* pInst, uint8_t portNo, uint32_t baudrate, tBYTESIZ
   Cptimeouts.WriteTotalTimeoutMultiplier = 0;
   Cptimeouts.WriteTotalTimeoutConstant   = 0;
 
-  SetCommTimeouts(hComm, &Cptimeouts);
+  success = SetCommTimeouts(hComm, &Cptimeouts);
 
   // Set the structure
   pInst->connectionState  = true;
@@ -147,9 +148,9 @@ bool RS232ConfigureReadTimeout(tRS232 *pInst, uint32_t byteToByteTimeout_ms, uin
 
   GetCommTimeouts(pInst->portHandle,&cto);
 
-  cto.ReadIntervalTimeout = byteToByteTimeout_ms;
-  cto.ReadTotalTimeoutConstant = totalTimeoutConstant_ms;
-  cto.ReadTotalTimeoutMultiplier = totalTimeoutMultiplier;
+  cto.ReadIntervalTimeout         = (DWORD)byteToByteTimeout_ms;
+  cto.ReadTotalTimeoutConstant    = (DWORD)totalTimeoutConstant_ms;
+  cto.ReadTotalTimeoutMultiplier  = (DWORD)totalTimeoutMultiplier;
 
   successFlag = SetCommTimeouts(pInst->portHandle, &cto);
 

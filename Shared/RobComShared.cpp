@@ -61,7 +61,7 @@ DLLEXPORT void debugMsgInterface(RobCom* pInst, unsigned int portNo, unsigned in
 ************************************************************************************/
 DLLEXPORT uint32_t getDebugMsg(RobCom* pInst, uint8_t** buffer)
 {
-    return pInst->getDebugMsg(pInst->m_debugMessages, buffer);
+    return pInst->getDebugMsg(buffer);
 }
 
 /*******************************************************************************//***
