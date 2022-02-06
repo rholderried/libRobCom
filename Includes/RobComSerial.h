@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <cstdbool>
 #include <condition_variable>
+#include <chrono>
 #include <mutex>
 #include "Helpers.h"
 #include "SerialMessageHandler.h"
@@ -53,6 +54,8 @@
 #define NAK			0x15
 #endif
 
+#define RECEIVE_RETURN_TIMEOUT 50  // ms until the serial device receiver routine returns
+
 /************************************************************************************
  * Type definitions
  ***********************************************************************************/
@@ -63,7 +66,8 @@ typedef enum
     ROBCOMSERIAL_WAITING_FOR_ACK,
     ROBCOMSERIAL_RECEIVE,
     ROBCOMSERIAL_EVALUATE,
-    ROBCOMSERIAL_ERROR
+    ROBCOMSERIAL_ERROR,
+    ROBCOMSERIAL_ABORT
 }ROBCOMSERIAL_STATE;
 
 /************************************************************************************
@@ -72,21 +76,28 @@ typedef enum
 class RobComSerial: public SerialMessageHandler
 {
     public:
+    std::chrono::milliseconds m_receiveTimeout_ms;
+    tMESSAGE *m_request;
+    tMESSAGE *m_response;
 
-    RobComSerial(uint32_t bufWidth, uint32_t bufSize);
+    RobComSerial(uint32_t bufWidth, uint32_t bufSize, tMESSAGE *request, tMESSAGE *response);
     ~RobComSerial();
 
     bool RobComSerialInit(uint8_t portNo, uint32_t baudrate, uint32_t receiveTimeout_ms);
-    
     void onReceivedMsg(void);
 
-    std::condition_variable m_stateMachineControl;
-    std::mutex m_stateMachineMutex;
 
     private:
+
+    bool    m_receiveReady;
     
     void stateMachine(void);
-    void abortStateMachineExecution(void);
+    void setState(ROBCOMSERIAL_STATE newState);
+    void evaluateMessage(void);
+
+    // State machine control mutex
+    std::condition_variable m_stateMachineControl;
+    std::mutex m_stateMachineMutex;
 
     ROBCOMSERIAL_STATE  m_state;
     ThreadWrapper *m_stateMachineHandler = nullptr;

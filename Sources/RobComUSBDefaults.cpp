@@ -107,11 +107,11 @@ int RobComUSBDefaults::InitializeVariablesByUSB(RAMVariables* RAMVarPtr, EEPROMV
 // Timer Callback for the live Datalogger
 void RobComUSBDefaults::LiveDatalogGetData(void)
 {
-	unsigned char* bufPtr;
+	unsigned char bufPtr[LIVE_DATALOG_BUFFER_WIDTH];
 	int noOfElementsLeft;
 
 	// Drain data from the ringbuffer (if any)
-	while(m_RobComUSB->m_liveDatalogBuffer->GetElement(&bufPtr))
+	while(m_RobComUSB->m_liveDatalogBuffer->GetElement(bufPtr))
 	{
 		// Compute the remaining elements
 		noOfElementsLeft = m_RobComUSB->m_liveDatalogBuffer->m_bufSize -

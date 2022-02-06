@@ -16,7 +16,6 @@
 /*******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Includes/Variables.h"
 
 /*******************************************************************************
  * Typedefs
@@ -26,24 +25,10 @@
 /*******************************************************************************
  * Classes
  ******************************************************************************/
-// class TestClass
-// {
 
-// public:
-// 	EEPROMVariables* EEPtr;
-// 	RAMVariables* RAMPtr;
-
-// 	// Public member functions
-// 	TestClass();
-// 	void TestOnConnectionCB(int status);
-// 	void TestDataCB(uint8_t *bufPtr, int datalength);
-// 	void TestGetCommandCallback(void* pSetup, unsigned char* buf_ptr, int status);
-// 	void TestLiveDatalogStartCommandCB(int status);
-// 	void TestLiveDatalogStopCommandCB(int status);
-// 	void TestMemoryReadoutCommandCB(int status);
-// 	void TestOnVariableInitCB(int status);
-// 	~TestClass();
-// };
-
+/*******************************************************************************
+ * Function definitions
+ ******************************************************************************/
+void TestRingbuffer (void);
 
 #endif /* MAIN_H_ */

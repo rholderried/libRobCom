@@ -18,6 +18,7 @@
 #include <chrono>
 #include <stdio.h>
 #include <string.h>
+#include <cstring>
 
 /*******************************************************************************
  * Typedefs
@@ -239,11 +240,12 @@ public:
 		index = ValidateNextDataIndex();// * m_bufWidth;
 
 		// Copy elements into the buffer
-		while(i < size)
-		{
-			m_ringbuffer[index + i] = element[i];
-			i++;
-		}
+		// while(i < size)
+		// {
+		// 	m_ringbuffer[index + i] = element[i];
+		// 	i++;
+		// }
+		std::memcpy(&m_ringbuffer[index], element, sizeof(T) * size);
 
 		m_bufSlotDataSize[m_lastDataIndex] = size;
 
@@ -252,7 +254,7 @@ public:
 	}
 
 	// Get element at a specific buffer index
-	unsigned int GetElement(T** bufPtr, bool lock = true)
+	unsigned int GetElement(T* bufPtr, bool lock = true)
 	{
 		int firstDataIndex = 0;
 		unsigned int retVal = 0;
@@ -266,7 +268,8 @@ public:
 		if(InvalidateFirstDataIndex())
 		{
 			// Get the Element from the last Buffer index
-			*bufPtr = &m_ringbuffer[firstDataIndex * m_bufWidth];
+			// *bufPtr = &m_ringbuffer[firstDataIndex * m_bufWidth];
+			std::memcpy(bufPtr, &m_ringbuffer[firstDataIndex * m_bufWidth],m_bufSlotDataSize[firstDataIndex] * sizeof(T));
 			retVal = m_bufSlotDataSize[firstDataIndex];
 			m_bufSlotDataSize[firstDataIndex] = 0;
 		}

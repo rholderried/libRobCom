@@ -59,7 +59,7 @@ DLLEXPORT void debugMsgInterface(RobCom* pInst, unsigned int portNo, unsigned in
 /*******************************************************************************//***
 * \brief Writes the messages into the buffer passed by the application
 ************************************************************************************/
-DLLEXPORT uint32_t getDebugMsg(RobCom* pInst, uint8_t** buffer)
+DLLEXPORT uint32_t getDebugMsg(RobCom* pInst, uint8_t* buffer)
 {
     return pInst->getDebugMsg(buffer);
 }

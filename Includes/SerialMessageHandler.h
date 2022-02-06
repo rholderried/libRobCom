@@ -20,6 +20,7 @@
 #include <cstdbool>
 #include "Helpers.h"
 #include "SerialInterface.h"
+#include <mutex>
 
 /************************************************************************************
  * Defines
@@ -49,10 +50,12 @@ class SerialMessageHandler
         uint32_t                m_bufWidth;
         uint32_t                m_bufSize;
         uint8_t                 m_msgTermSymbol;
+        bool                    m_terminateRec;
         bool                    m_receiveImmediately; 
         Ringbuffer<uint8_t>     *m_msgRingBuffer        = nullptr;
 
         struct callbacks        m_callbacks = {nullptr, nullptr};
+        
         
 
         SerialMessageHandler(uint32_t bufWidth, uint32_t bufSize, uint8_t msgTermSymbol);
@@ -60,11 +63,12 @@ class SerialMessageHandler
         
         //void msgStateMachine (void);
         bool establishConnection(uint8_t portNo, uint32_t baudrate);
-        bool startReceiver(bool enableReceiveState);
+        bool startReceiver(bool enableReceiveState = false);
         bool configureTimeouts(uint32_t receiveTimeout_ms, uint32_t writeTimeout_ms);
         bool setInterfaceToReceiveState(void);
 
     private:
+        
         ThreadWrapper       *m_eventHandlerPtr      = nullptr;
         SerialInterface     *m_commInterface        = nullptr;
         // Ringbuffer holding the debug messages
@@ -74,6 +78,9 @@ class SerialMessageHandler
         bool                m_connectionEstablished = false;
 
         void msgReceiver (uint8_t *buffer, uint32_t size);
+
+    protected:
+        std::mutex          m_terminatorMutex;
 
 };
 

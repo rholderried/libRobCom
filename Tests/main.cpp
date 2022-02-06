@@ -134,6 +134,7 @@ using namespace std;
 
 int main()
 {
+	TestRingbuffer();
 
 	// uint16_t vararray[15] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 	// //vararray[0]=1;
@@ -183,47 +184,47 @@ int main()
 	// delete pInterface;
 	// delete pTestClass;
 
-	uint8_t *buffer;
-	uint32_t received;
-	time_t start = time(nullptr);
-	time_t elapsed;
-	RobCom *robComInst = RobComInit();
-	std::string delimiter = "\n";
-	try
-	{
-		debugMsgInterface(robComInst, 3, 115384);
-		cout << "Yeah! Connection!" << endl;
-	}
-	catch (const char *msg)
-	{
-		cout << msg << endl;
-		delete robComInst;
-		return 1;
-	}
+	// uint8_t *buffer;
+	// uint32_t received;
+	// time_t start = time(nullptr);
+	// time_t elapsed;
+	// RobCom *robComInst = RobComInit();
+	// std::string delimiter = "\n";
+	// try
+	// {
+	// 	debugMsgInterface(robComInst, 3, 115384);
+	// 	cout << "Yeah! Connection!" << endl;
+	// }
+	// catch (const char *msg)
+	// {
+	// 	cout << msg << endl;
+	// 	delete robComInst;
+	// 	return 1;
+	// }
 	
-	while(true)
-	{
-		elapsed = time(nullptr) - start;
+	// while(true)
+	// {
+	// 	elapsed = time(nullptr) - start;
 
-		if (elapsed >= 15)
-			break;
+	// 	if (elapsed >= 15)
+	// 		break;
 
-		received = getDebugMsg(robComInst, &buffer);
+	// 	received = getDebugMsg(robComInst, &buffer);
 
-		if (received > 0)
-		{
-			std::string s = reinterpret_cast<char*>(buffer);
-			std::string msg = s.substr(0,s.find(delimiter));
+	// 	if (received > 0)
+	// 	{
+	// 		std::string s = reinterpret_cast<char*>(buffer);
+	// 		std::string msg = s.substr(0,s.find(delimiter));
 
-			cout << msg << endl;
-		}
+	// 		cout << msg << endl;
+	// 	}
 
-		this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
-	//robComInst->m_debugMessages->m_commInterface->configureReadTimeouts(10,200,2);
-	deleteRobCom(robComInst);
+	// 	this_thread::sleep_for(std::chrono::milliseconds(10));
+	// }
+	// //robComInst->m_debugMessages->m_commInterface->configureReadTimeouts(10,200,2);
+	// deleteRobCom(robComInst);
 
-	return 0;
+	// return 0;
 }
 
 

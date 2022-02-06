@@ -128,8 +128,8 @@ void SerialInterface::receiveTask(void)
     
     while (m_receiveTaskRunning)
     {
-        while (!m_readyToReceive)
-            m_cond.wait(lock);
+        // Wait until we are ready to receive data
+        m_cond.wait(lock, [this]{return m_readyToReceive;});
         
         m_ifState = SERIAL_INTERFACE_RECEIVING;
         

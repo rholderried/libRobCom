@@ -22,6 +22,7 @@
 #include "SerialMessageHandler.h"
 //#include "RobComUSB.h"
 #include "RobComSerial.h"
+#include "CommonTypes.h"
 /***********************************************************************************
 * Defines
 ***********************************************************************************/
@@ -40,6 +41,8 @@ typedef enum
     COMTYPE_DEBUGMESSAGES,
     COMTYPE_ROBCOMSERIAL
 }tSERIALCOMTYPE;
+
+
 /***********************************************************************************
 * Classes
 ***********************************************************************************/
@@ -49,6 +52,9 @@ class RobCom
         SerialMessageHandler    *m_debugMessages = nullptr;
         RobComSerial            *m_robComSerial = nullptr;
 
+        tMESSAGE                m_request = tMESSAGE_DEFAULTS;
+        tMESSAGE                m_response = tMESSAGE_DEFAULTS;
+
         RobCom();
         ~RobCom();
         
@@ -56,10 +62,11 @@ class RobCom
                                         uint8_t portNo, 
                                         uint32_t baudrate, 
                                         uint32_t bufLen = 0, 
-                                        uint32_t receiveTimeout_ms = DEFAULT_RECEIVE_TIMEOUT_MS);
+                                        uint32_t receiveTimeout_ms = DEFAULT_RECEIVE_TIMEOUT_MS,
+                                        tMESSAGE *request = nullptr, tMESSAGE *response = nullptr);
 
         //bool establishUSBConnection(COMCONFIG usbConfig);
-        uint32_t getDebugMsg(uint8_t** dataPtr);
+        uint32_t getDebugMsg(uint8_t* dataPtr);
         //int32_t getRobComSerialMsg(RobComUSB *pInst, uint8_t** dataPtr);
 
 };

@@ -45,7 +45,7 @@ RobCom::~RobCom()
 /*******************************************************************************//***
 * \brief Setup a serial connection to the RobCom device
 ************************************************************************************/
-bool RobCom::establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, uint32_t baudrate, uint32_t bufLen, uint32_t receiveTimeout_ms)
+bool RobCom::establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, uint32_t baudrate, uint32_t bufLen, uint32_t receiveTimeout_ms, tMESSAGE *request, tMESSAGE *response)
 {
     bool successFlag = false;
 
@@ -67,7 +67,7 @@ bool RobCom::establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, u
             
             bufLen = RSMSG_BUFFER_WIDTH;
 
-            m_robComSerial = new RobComSerial(bufLen, RSMSG_BUFFER_SIZE);
+            m_robComSerial = new RobComSerial(bufLen, RSMSG_BUFFER_SIZE, request, response);
             successFlag = m_robComSerial->RobComSerialInit(portNo, baudrate, receiveTimeout_ms);
 
         default:
@@ -80,7 +80,7 @@ bool RobCom::establishSerialConnection(tSERIALCOMTYPE comType, uint8_t portNo, u
 /*******************************************************************************//***
 * \brief Get data from the debug interface
 ************************************************************************************/
-uint32_t RobCom::getDebugMsg(uint8_t** dataPtr)
+uint32_t RobCom::getDebugMsg(uint8_t* dataPtr)
 {
     uint32_t retrievedData = uint32_t(m_debugMessages->m_msgRingBuffer->GetElement(dataPtr));
 
