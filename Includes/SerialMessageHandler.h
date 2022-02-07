@@ -50,15 +50,18 @@ class SerialMessageHandler
         uint32_t                m_bufWidth;
         uint32_t                m_bufSize;
         uint8_t                 m_msgTermSymbol;
+        uint8_t                 m_stuffByte;
         bool                    m_terminateRec;
-        bool                    m_receiveImmediately; 
+        bool                    m_receiveImmediately;
+        bool                    m_stuffing; 
+        bool                    m_stuffByteReceived;
         Ringbuffer<uint8_t>     *m_msgRingBuffer        = nullptr;
 
         struct callbacks        m_callbacks = {nullptr, nullptr};
         
         
 
-        SerialMessageHandler(uint32_t bufWidth, uint32_t bufSize, uint8_t msgTermSymbol);
+        SerialMessageHandler(uint32_t bufWidth, uint32_t bufSize, uint8_t msgTermSymbol, uint8_t escapeSymbol, bool useEscapeSymbol);
         ~SerialMessageHandler();
         
         //void msgStateMachine (void);

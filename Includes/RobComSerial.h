@@ -54,6 +54,11 @@
 #define NAK			0x15
 #endif
 
+// Escape Byte
+#ifndef ESC
+#define ESC         0x1B
+#endif
+
 #define RECEIVE_RETURN_TIMEOUT 50  // ms until the serial device receiver routine returns
 
 /************************************************************************************

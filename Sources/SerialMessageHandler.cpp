@@ -33,16 +33,18 @@
 * @param    msgTermSymbol   Symbol for message termination, i.e. '\n'
 *
 ************************************************************************************/
-SerialMessageHandler::SerialMessageHandler(uint32_t bufWidth, uint32_t bufSize, uint8_t msgTermSymbol)
+SerialMessageHandler::SerialMessageHandler(uint32_t bufWidth, uint32_t bufSize, uint8_t msgTermSymbol, uint8_t stuffByte, bool stuffing)
 {
-    m_commInterface = new SerialInterface(std::bind(msgReceiver, this, std::placeholders::_1, std::placeholders::_2), RECEIVE_BUFFER_WIDTH);
+    m_commInterface     = new SerialInterface(std::bind(msgReceiver, this, std::placeholders::_1, std::placeholders::_2), RECEIVE_BUFFER_WIDTH);
     // Initialize the output buffer for the debug messages
-    m_msgRingBuffer = new Ringbuffer<uint8_t>(bufSize, bufWidth);
-    m_msgBuf        = new uint8_t [bufWidth];
-    m_bufWidth      = bufWidth;
-    m_bufSize       = bufSize;
-    m_msgTermSymbol = msgTermSymbol;
-    m_terminateRec  = false;
+    m_msgRingBuffer     = new Ringbuffer<uint8_t>(bufSize, bufWidth);
+    m_msgBuf            = new uint8_t [bufWidth];
+    m_bufWidth          = bufWidth;
+    m_bufSize           = bufSize;
+    m_msgTermSymbol     = msgTermSymbol;
+    m_stuffing          = stuffing;
+    m_stuffByte         = stuffByte;
+    m_terminateRec      = false;
     m_receiveImmediately = false;
 
 }
@@ -83,39 +85,52 @@ void SerialMessageHandler::msgReceiver(uint8_t *buffer, uint32_t size)
     // Loop through the received dataset to find concluded debug messages
     for (uint32_t i = 0; i < size; i++ )
     {
-        m_msgBuf[m_actualBufferIdx] = buffer[i];
-        
-        if (m_actualBufferIdx < m_bufWidth)
-            m_actualBufferIdx++;
-        
+        // Byte stuffing
+        if (buffer[i] == m_stuffByte && !m_stuffByteReceived && m_stuffing)
+            m_stuffByteReceived = true;
+        else
         {
-            const std::lock_guard<std::mutex> lock(m_terminatorMutex);
-
-            if (buffer[i] == m_msgTermSymbol && !m_terminateRec)
+            if (m_stuffByteReceived)
             {
-                // Copy data and reset the buffer
-                m_msgRingBuffer->PutElement(m_msgBuf, size = i+1);
-                m_actualBufferIdx = 0;
-                // Overwrite the previously received data
-                std::memset(m_msgBuf, 0,(size_t)m_bufWidth);
-
-                // Call the external function, if there is one
-                if (m_callbacks.onReceivedMsg != nullptr)
-                    m_callbacks.onReceivedMsg();
-
-                // Eventually prevent serial interface from receiving more data
-                if (!m_receiveImmediately)
-                    m_commInterface->m_readyToReceive = false;
+                buffer[i] -= 2;
+                m_stuffByteReceived = false;
             }
-            // Message receive operation has been terminated -> reset all control vars
-            else if (m_terminateRec)
-            {
-                m_commInterface->m_readyToReceive = false;
-                m_actualBufferIdx = 0;
-                // Overwrite the previously received data
-                std::memset(m_msgBuf, 0,(size_t)m_bufWidth);
-            }
+
+            m_msgBuf[m_actualBufferIdx] = buffer[i];
             
+            if (m_actualBufferIdx < m_bufWidth)
+                m_actualBufferIdx++;
+            
+            // Detect if the message terminator has been received
+            {
+                const std::lock_guard<std::mutex> lock(m_terminatorMutex);
+
+                if (buffer[i] == m_msgTermSymbol && !m_terminateRec)
+                {
+                    // Copy data and reset the buffer
+                    m_msgRingBuffer->PutElement(m_msgBuf, size = m_actualBufferIdx+1);
+                    m_actualBufferIdx = 0;
+                    // Overwrite the previously received data
+                    std::memset(m_msgBuf, 0,(size_t)m_bufWidth);
+
+                    // Call the external function, if there is one
+                    if (m_callbacks.onReceivedMsg != nullptr)
+                        m_callbacks.onReceivedMsg();
+
+                    // Eventually prevent serial interface from receiving more data
+                    if (!m_receiveImmediately)
+                        m_commInterface->m_readyToReceive = false;
+                }
+                // Message receive operation has been terminated -> reset all control vars
+                else if (m_terminateRec)
+                {
+                    m_commInterface->m_readyToReceive = false;
+                    m_actualBufferIdx = 0;
+                    // Overwrite the previously received data
+                    std::memset(m_msgBuf, 0,(size_t)m_bufWidth);
+                }
+                
+            }
         }
     }
 
